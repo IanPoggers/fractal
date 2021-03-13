@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "fractal:lib"
+
+    - path: "./app/Main.hs"
+      component: "fractal:exe:fractal-exe"
+
+    - path: "./app/Paths_fractal.hs"
+      component: "fractal:exe:fractal-exe"
+
+    - path: "./test"
+      component: "fractal:test:fractal-test"
