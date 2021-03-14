@@ -8,6 +8,7 @@ import Control.Parallel
 import Control.Parallel.Strategies
 import Data.Complex
 import Data.List.Split
+import Data.Vector.Storable
 import System.Environment
 
 main = do
@@ -15,21 +16,16 @@ main = do
   size <- read <$> getLine
   putStrLn "Iterations: "
   iters <- read <$> getLine
-  putStrLn "Frame Delay: "
-  delay <- read <$> getLine
-  let gif =
-        writeGifImages
-          "out.gif"
-          LoopingForever
-          [ (greyPalette, delay, genFractal size iters comp)
-          | comp <- [0,0.03 .. 2.2]
-          ]
-  either error id gif
+  writePng "out.png" $ genFractal size iters 2
 
-genFractal size iters comp =
-  generateImage (genPixel comp) size size :: Image Pixel8
+genFractal :: Int -> Int -> Complex Double -> Image Pixel8
+genFractal size iters comp = Image size size $ fromList pixels
   where
-    genPixel comp x y = div 0xff iters * (iters - boundedUntil comp)
+    pixels =
+      [genPixel comp (i `mod` size) (i `div` size) | i <- [0 .. size * size `div` 2]] `using`
+      parList rdeepseq :: [Pixel8]
+    genPixel comp x y =
+      fromIntegral $ div 0xff iters * (iters - boundedUntil comp) :: Pixel8
       where
         boundedUntil =
           isBounded iters $
@@ -40,5 +36,5 @@ isBounded iters c comp = isBounded' 1 c
   where
     isBounded' i z
       | i == iters = i
-      | magnitude z > comp = i
-      | otherwise = isBounded' (i + 1) $ z * z * z + c
+      | magnitude z > 2 = i
+      | otherwise = isBounded' (i + 1) $ (z ** comp) + c

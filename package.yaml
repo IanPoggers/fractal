@@ -31,14 +31,17 @@ executables:
     source-dirs:         app
     ghc-options:
     - -threaded
+    - -O2
     - -rtsopts
-    - -with-rtsopts=-N3
+    - -fasm
+    - -with-rtsopts=-N6
     dependencies:
     - JuicyPixels
     - parallel
     - bytestring
     - split
     - gloss
+    - vector
 
 tests:
   fractal-test:
